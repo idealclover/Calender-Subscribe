@@ -8,6 +8,8 @@
 
 目前供 2025 级清华大学 MBA 预录取新生使用。
 
+暂不提供公开访问地址，可下载后点击 `index.html` 查看效果。
+
 ![](./screenshot.jpg)
 
 ## ✨ 功能特性
@@ -32,6 +34,13 @@ Calender-Subscribe/
     ├── main.py           # 主程序脚本
     └── requirements.txt   # Python 依赖包列表
 ```
+
+## 🔨 订阅原理
+
+根据当前手机日历订阅功能，提供两种订阅方式：ICS文件直接订阅、CalDAV服务器订阅。
+
+* ICS文件直接订阅：将 ICS 文件上传到 CDN 服务器，通过 CDN 域名提供订阅链接。适用手机型号：iPhone、小米、OPPO等；
+* CalDAV服务器订阅：将 ICS 文件上传到 CalDAV 服务器，通过 CalDAV 服务器提供订阅链接。适用手机型号：华为、VIVO等。
 
 ## 📦 快速开始
 
