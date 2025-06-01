@@ -1,0 +1,5 @@
+icalendar
+pandas
+caldav
+cos-python-sdk-v5
+tencentcloud-sdk-python

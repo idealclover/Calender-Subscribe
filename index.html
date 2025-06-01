@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>清华25级MBA日历订阅</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f5f5f5;
+        flex-direction: column;
+        text-align: center;
+      }
+      .container {
+        width: 95%;
+        max-width: 500px;
+        padding: 20px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        box-sizing: border-box;
+      }
+      h2 {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 1.5rem;
+        word-wrap: break-word;
+      }
+      p {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 15px;
+        font-size: 0.95rem;
+        word-wrap: break-word;
+      }
+      .intro-text {
+        color: #4a154b;
+        font-weight: bold;
+        margin: 15px 0;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-radius: 6px;
+        border-left: 4px solid #4a154b;
+      }
+      .btn {
+        display: inline-block;
+        background-color: #4a154b; /* 清华紫 */
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: background-color 0.3s;
+        border: none;
+        cursor: pointer;
+        font-size: 0.95rem;
+        margin: 5px;
+        max-width: 100%;
+        white-space: normal;
+        word-wrap: break-word;
+      }
+      .btn:hover {
+        background-color: #3a1039;
+      }
+      .wechat-tip {
+        display: none;
+        margin-top: 20px;
+      }
+      .wechat-tip img {
+        max-width: 100%;
+        margin-top: 10px;
+      }
+      /* 手风琴样式 */
+      .accordion {
+        margin-top: 20px;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .accordion-item {
+        border-bottom: 1px solid #eee;
+        overflow: hidden;
+      }
+      .accordion-item:last-child {
+        border-bottom: none;
+      }
+      .accordion-header {
+        background-color: #f9f9f9;
+        padding: 15px;
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #4a154b;
+        transition: background-color 0.3s;
+      }
+      .accordion-header:hover {
+        background-color: #f0e6f0;
+      }
+      .accordion-header.active {
+        background-color: #4a154b;
+        color: white;
+      }
+      .accordion-header::after {
+        content: "\25BC"; /* 向下箭头 Unicode */
+        position: absolute;
+        right: 15px;
+        font-size: 0.8rem;
+        transition: transform 0.3s;
+      }
+      .accordion-header.active::after {
+        transform: rotate(180deg); /* 旋转箭头 */
+      }
+      .accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-out;
+        background-color: white;
+        padding: 0 15px;
+      }
+      .accordion-content.active {
+        max-height: 1000px;
+        padding: 15px;
+      }
+      .copy-success {
+        color: #4a154b;
+        font-weight: bold;
+        margin-top: 10px;
+        display: none;
+      }
+      /* 添加图片样式控制 */
+      .accordion-content img {
+        max-width: 100%;
+        max-height: 300px; /* 限制图片最大高度 */
+        height: auto;
+        margin: 10px 0;
+        border-radius: 6px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        display: block; /* 确保图片为块级元素 */
+      }
+      .footer {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        color: #999;
+        font-size: 0.8rem;
+        text-align: center;
+      }
+      .footer a {
+        color: #777;
+        text-decoration: none;
+      }
+      .footer a:hover {
+        text-decoration: underline;
+      }
+      .pLabels {
+        margin-top: 10px;
+      }
+      .class-selector {
+        margin: 15px 0;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      .class-selector span {
+        display: block;
+        font-weight: bold;
+        color: #4a154b;
+      }
+      .class-selector label {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 5px;
+        cursor: pointer;
+        background-color: #f0f0f0;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        font-size: 0.9rem;
+      }
+      .class-selector label:hover {
+        background-color: #e6e6e6;
+      }
+      .class-selector input[type="radio"] {
+        display: none;
+      }
+      .class-selector input[type="radio"]:checked + span {
+        color: #4a154b;
+        font-weight: bold;
+      }
+      .class-selector label.selected {
+        background-color: #f0e6f0;
+        border-color: #4a154b;
+        color: #4a154b;
+        font-weight: bold;
+      }
+      .class-selector input[type="radio"] {
+        margin-right: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>清华25级MBA日历订阅</h2>
+
+      <div id="wechatTip" class="wechat-tip">
+        <p>
+          当前在微信内置浏览器中<br />请点击右上角的"..."，然后选择"在浏览器中打开"以使用完整功能。
+        </p>
+        <img
+          src="https://cdn.idealclover.cn/Projects/thu/imgs/wechat.jpg"
+          alt="在浏览器中打开示意图"
+        />
+      </div>
+
+      <div id="deviceAccordion" style="display: none">
+        <p class="intro-text">
+          请参考下方不同机型的步骤订阅日历<br />相关日程与备注将会自动更新<br />如遇问题可联系
+          P3 idealclover
+        </p>
+
+        <div class="class-selector">
+          <span>选择班级</span>
+          <div class="pLabels">
+            <label id="p1Label"
+              ><input type="radio" name="class" value="p1" /><span
+                >P1</span
+              ></label
+            >
+            <label id="p2Label"
+              ><input type="radio" name="class" value="p2" /><span
+                >P2</span
+              ></label
+            >
+            <label id="p3Label" class="selected"
+              ><input type="radio" name="class" value="p3" checked /><span
+                >P3</span
+              ></label
+            >
+            <label id="p4Label"
+              ><input type="radio" name="class" value="p4" /><span
+                >P4</span
+              ></label
+            >
+            <label id="p5Label"
+              ><input type="radio" name="class" value="p5" /><span
+                >P5</span
+              ></label
+            >
+          </div>
+        </div>
+
+        <div class="accordion">
+          <!-- 苹果设备 -->
+          <div class="accordion-item" id="iosItem">
+            <div class="accordion-header" id="iosHeader">苹果</div>
+            <div class="accordion-content" id="iosContent">
+              <p>请使用Safari浏览器点击下方按钮订阅</p>
+              <button class="subscribeBtn btn">点击按钮订阅P3班日历</button>
+              <p>自动刷新建议设置为每天</p>
+            </div>
+          </div>
+
+          <!-- 小米设备 -->
+          <div class="accordion-item" id="xiaomiItem">
+            <div class="accordion-header" id="xiaomiHeader">小米</div>
+            <div class="accordion-content" id="xiaomiContent">
+              <p>请使用小米官方浏览器点击下方按钮</p>
+              <button class="subscribeBtn btn">点击按钮订阅P3班日历</button>
+            </div>
+          </div>
+
+          <!-- 华为设备 -->
+          <div class="accordion-item" id="huaweiItem">
+            <div class="accordion-header" id="huaweiHeader">华为鸿蒙</div>
+            <div class="accordion-content" id="huaweiContent">
+              <p>1. 打开华为日历APP</p>
+              <p>2. 点击左上角菜单</p>
+              <p>3. 选择"添加"-"添加CalDAV日历"</p>
+              <img
+                src="https://cdn.idealclover.cn/Projects/thu/imgs/huawei_1.jpg"
+                alt="华为日历添加CalDAV日历界面"
+              />
+              <p>4. 输入以下信息订阅日历：</p>
+              <div
+                style="
+                  margin: 10px 0;
+                  padding: 10px;
+                  background-color: #f9f9f9;
+                  border-radius: 6px;
+                  border-left: 4px solid #4a154b;
+                "
+              >
+                <p>
+                  <strong>账户：25p3</strong>
+                  <button
+                    id="huaweiAccountCopyBtn"
+                    class="btn"
+                    style="
+                      padding: 5px 10px;
+                      font-size: 0.8rem;
+                      margin-left: 10px;
+                    "
+                  >
+                    复制
+                  </button>
+                </p>
+                <p id="huaweiAccountCopySuccess" class="copy-success">
+                  账户已复制到剪贴板！
+                </p>
+
+                <p>
+                  <strong>密码：25p3</strong>
+                  <button
+                    id="huaweiPasswordCopyBtn"
+                    class="btn"
+                    style="
+                      padding: 5px 10px;
+                      font-size: 0.8rem;
+                      margin-left: 10px;
+                    "
+                  >
+                    复制
+                  </button>
+                </p>
+                <p id="huaweiPasswordCopySuccess" class="copy-success">
+                  密码已复制到剪贴板！
+                </p>
+
+                <p>
+                  <strong
+                    >订阅地址：<span id="huaweiServerAddress"></span
+                  ></strong>
+                  <button
+                    id="huaweiServerCopyBtn"
+                    class="btn"
+                    style="
+                      padding: 5px 10px;
+                      font-size: 0.8rem;
+                      margin-left: 10px;
+                    "
+                  >
+                    复制
+                  </button>
+                </p>
+                <p id="huaweiServerCopySuccess" class="copy-success">
+                  订阅地址已复制到剪贴板！
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- OPPO设备 -->
+          <div class="accordion-item" id="oppoItem">
+            <div class="accordion-header" id="oppoHeader">OPPO</div>
+            <div class="accordion-content" id="oppoContent">
+              <p>
+                1. 打开OPPO日历APP<br />
+                2. 点击右上角三个点<br />
+                3. 选择“日程导入与同步”
+              </p>
+              <img
+                src="https://cdn.idealclover.cn/Projects/thu/imgs/oppo_1.jpg"
+                alt="OPPO日历导入_1"
+              />
+              <p>4. 下滑找到“URL日历”</p>
+              <img
+                src="https://cdn.idealclover.cn/Projects/thu/imgs/oppo_2.jpg"
+                alt="OPPO日历导入_2"
+              />
+              <p>5. 复制以下日历订阅链接，粘贴到URL中</p>
+              <button id="oppoCopyBtn" class="btn">复制P3班日历订阅链接</button>
+              <p id="oppoCopySuccess" class="copy-success">
+                链接已复制到剪贴板！
+              </p>
+            </div>
+          </div>
+
+          <!-- vivo设备 -->
+          <div class="accordion-item" id="vivoItem">
+            <div class="accordion-header" id="vivoHeader">VIVO</div>
+            <div class="accordion-content" id="vivoContent">
+              <p>1. 打开vivo日历APP</p>
+              <p>2. 点击右上角三个点</p>
+              <p>3. 选择"日程导入与管理"</p>
+              <img
+                src="https://cdn.idealclover.cn/Projects/thu/imgs/vivo_1.jpg"
+                alt="VIVO日历导入_1"
+              />
+              <p>4. 点击“添加账号”并选择 CalDAV</p>
+              <img
+                src="https://cdn.idealclover.cn/Projects/thu/imgs/vivo_2.jpg"
+                alt="VIVO日历导入_2"
+              />
+              <p>5. 输入以下信息：</p>
+              <div
+                style="
+                  margin: 10px 0;
+                  padding: 10px;
+                  background-color: #f9f9f9;
+                  border-radius: 6px;
+                  border-left: 4px solid #4a154b;
+                "
+              >
+                <p style="margin: 5px 0">
+                  <strong>账户：25p3</strong>
+                  <button
+                    id="vivoAccountCopyBtn"
+                    class="btn"
+                    style="
+                      padding: 5px 10px;
+                      font-size: 0.8rem;
+                      margin-left: 10px;
+                    "
+                  >
+                    复制
+                  </button>
+                  <span
+                    id="vivoAccountCopySuccess"
+                    class="copy-success"
+                    style="display: none; margin-left: 10px"
+                    >已复制！</span
+                  >
+                </p>
+
+                <p style="margin: 5px 0">
+                  <strong>密码：25p3</strong>
+                  <button
+                    id="vivoPasswordCopyBtn"
+                    class="btn"
+                    style="
+                      padding: 5px 10px;
+                      font-size: 0.8rem;
+                      margin-left: 10px;
+                    "
+                  >
+                    复制
+                  </button>
+                  <span
+                    id="vivoPasswordCopySuccess"
+                    class="copy-success"
+                    style="display: none; margin-left: 10px"
+                    >已复制！</span
+                  >
+                </p>
+
+                <p style="margin: 5px 0">
+                  <strong
+                    >订阅地址：<span id="vivoServerAddress"></span
+                  ></strong>
+                  <button
+                    id="vivoServerCopyBtn"
+                    class="btn"
+                    style="
+                      padding: 5px 10px;
+                      font-size: 0.8rem;
+                      margin-left: 10px;
+                    "
+                  >
+                    复制
+                  </button>
+                  <span
+                    id="vivoServerCopySuccess"
+                    class="copy-success"
+                    style="display: none; margin-left: 10px"
+                    >已复制！</span
+                  >
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 其他设备 -->
+          <div class="accordion-item" id="otherItem">
+            <div class="accordion-header" id="otherHeader">其他设备</div>
+            <div class="accordion-content" id="otherContent">
+              <p>您可以联系群内 @idealclover 获取支持</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      Proudly made with ❤ by
+      <a href="https://idealclover.top" target="_blank">@idealclover</a>
+    </div>
+
+    <script>
+      // 配置项
+      const CONFIG = {
+        CDN_BASE_URL: "",
+        CALDAV_SERVER: "",
+      };
+
+      // 检测是否是微信浏览器
+      function isWechat() {
+        return /MicroMessenger/i.test(navigator.userAgent);
+      }
+
+      // 检测是否是iOS设备
+      function isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+      }
+
+      // 检测是否是小米设备
+      function isXiaomi() {
+        return (
+          /XiaoMi/i.test(navigator.userAgent) ||
+          /MI\s/i.test(navigator.userAgent) ||
+          /Redmi/i.test(navigator.userAgent)
+        );
+      }
+
+      // 检测是否是华为设备
+      function isHuawei() {
+        return (
+          /HUAWEI/i.test(navigator.userAgent) ||
+          /HONOR/i.test(navigator.userAgent)
+        );
+      }
+
+      // 检测是否是OPPO设备
+      function isOPPO() {
+        return /OPPO/i.test(navigator.userAgent);
+      }
+
+      // 检测是否是vivo设备
+      function isVivo() {
+        return /vivo/i.test(navigator.userAgent);
+      }
+
+      // 复制文本到剪贴板
+      function copyToClipboard(text) {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        let success = false;
+        try {
+          success = document.execCommand("copy");
+        } catch (err) {
+          console.error("复制失败:", err);
+        }
+
+        document.body.removeChild(textarea);
+        return success;
+      }
+
+      // 切换手风琴项目
+      function toggleAccordion(headerId) {
+        // 获取当前点击的头部和内容
+        const currentHeader = document.getElementById(headerId);
+        const contentId = headerId.replace("Header", "Content");
+        const currentContent = document.getElementById(contentId);
+
+        // 检查当前项目是否已经激活
+        const isActive = currentHeader.classList.contains("active");
+
+        if (isActive) {
+          // 如果已经激活，则关闭它
+          currentHeader.classList.remove("active");
+          currentContent.classList.remove("active");
+        } else {
+          // 如果未激活，先关闭所有项目，再打开当前项目
+          const headers = document.querySelectorAll(".accordion-header");
+          const contents = document.querySelectorAll(".accordion-content");
+
+          headers.forEach((header) => header.classList.remove("active"));
+          contents.forEach((content) => content.classList.remove("active"));
+
+          currentHeader.classList.add("active");
+          currentContent.classList.add("active");
+        }
+      }
+
+      // 页面加载完成后执行
+      document.addEventListener("DOMContentLoaded", function () {
+        // 当前选择的班级
+        let currentClass = "p3";
+
+        // 获取所有手风琴头部
+        const accordionHeaders = document.querySelectorAll(".accordion-header");
+
+        // 为每个手风琴头部添加点击事件
+        accordionHeaders.forEach((header) => {
+          header.addEventListener("click", function () {
+            toggleAccordion(this.id);
+          });
+        });
+
+        // 班级选择器样式处理
+        const classRadios = document.querySelectorAll(
+          '.class-selector input[type="radio"]'
+        );
+        classRadios.forEach((radio) => {
+          radio.addEventListener("change", function () {
+            // 移除所有label的selected类
+            document
+              .querySelectorAll(".class-selector label")
+              .forEach((label) => {
+                label.classList.remove("selected");
+              });
+            // 为当前选中的radio的父label添加selected类
+            if (this.checked) {
+              currentClass = this.value;
+              updateSubscriptionLinks();
+              this.closest("label").classList.add("selected");
+            }
+          });
+        });
+
+        // 更新所有订阅链接和按钮文本
+        function updateSubscriptionLinks() {
+          // 更新按钮文本
+          const subscribeButtons =
+            document.getElementsByClassName("subscribeBtn");
+          for (let i = 0; i < subscribeButtons.length; i++) {
+            subscribeButtons[
+              i
+            ].textContent = `点击按钮订阅${currentClass.toUpperCase()}班日历`;
+          }
+
+          // 更新华为账户和密码
+          const huaweiAccountCopyBtn = document.getElementById(
+            "huaweiAccountCopyBtn"
+          );
+          const huaweiPasswordCopyBtn = document.getElementById(
+            "huaweiPasswordCopyBtn"
+          );
+          if (huaweiAccountCopyBtn && huaweiPasswordCopyBtn) {
+            huaweiAccountCopyBtn.previousElementSibling.textContent = `账户： 25${currentClass}`;
+            huaweiPasswordCopyBtn.previousElementSibling.textContent = `密码： 25${currentClass}`;
+          }
+
+          // 更新OPPO复制按钮文本
+          const oppoCopyBtn = document.getElementById("oppoCopyBtn");
+          if (oppoCopyBtn) {
+            oppoCopyBtn.textContent = `复制${currentClass.toUpperCase()}班日历订阅链接`;
+          }
+
+          // 更新vivo账户和密码
+          const vivoAccountCopyBtn =
+            document.getElementById("vivoAccountCopyBtn");
+          const vivoPasswordCopyBtn = document.getElementById(
+            "vivoPasswordCopyBtn"
+          );
+          if (vivoAccountCopyBtn && vivoPasswordCopyBtn) {
+            vivoAccountCopyBtn.previousElementSibling.textContent = `账户： 25${currentClass}`;
+            vivoPasswordCopyBtn.previousElementSibling.textContent = `密码： 25${currentClass}`;
+          }
+        }
+
+        if (isWechat()) {
+          // 微信浏览器
+          document.getElementById("wechatTip").style.display = "block";
+          document.getElementById("deviceAccordion").style.display = "none";
+        } else {
+          // 非微信浏览器，显示手风琴
+          document.getElementById("wechatTip").style.display = "none";
+          document.getElementById("deviceAccordion").style.display = "block";
+
+          // 根据设备类型自动选择默认选项
+          if (isIOS()) {
+            toggleAccordion("iosHeader");
+          } else if (isHuawei()) {
+            toggleAccordion("huaweiHeader");
+          } else if (isOPPO()) {
+            toggleAccordion("oppoHeader");
+          } else if (isVivo()) {
+            toggleAccordion("vivoHeader");
+          } else if (isXiaomi()) {
+            toggleAccordion("xiaomiHeader");
+          } else {
+            toggleAccordion("otherHeader");
+          }
+        }
+
+        // 设置CalDAV服务器地址
+        document.getElementById("huaweiServerAddress").textContent =
+          CONFIG.CALDAV_SERVER;
+        document.getElementById("vivoServerAddress").textContent =
+          CONFIG.CALDAV_SERVER;
+
+        // 为订阅按钮添加点击事件（iOS & 小米）
+        const subscribeButtons =
+          document.getElementsByClassName("subscribeBtn");
+        for (let i = 0; i < subscribeButtons.length; i++) {
+          subscribeButtons[i].addEventListener("click", function () {
+            // 构建webcal链接
+            const webcalUrl = `webcal://${CONFIG.CDN_BASE_URL}${currentClass}.ics`;
+            // 跳转到webcal链接
+            window.location.href = webcalUrl;
+          });
+        }
+
+        // 为华为账户复制按钮添加点击事件
+        document
+          .getElementById("huaweiAccountCopyBtn")
+          .addEventListener("click", function () {
+            if (copyToClipboard(`25${currentClass}`)) {
+              document.getElementById(
+                "huaweiAccountCopySuccess"
+              ).style.display = "block";
+              setTimeout(function () {
+                document.getElementById(
+                  "huaweiAccountCopySuccess"
+                ).style.display = "none";
+              }, 3000);
+            }
+          });
+
+        // 为华为密码复制按钮添加点击事件
+        document
+          .getElementById("huaweiPasswordCopyBtn")
+          .addEventListener("click", function () {
+            if (copyToClipboard(`25${currentClass}`)) {
+              document.getElementById(
+                "huaweiPasswordCopySuccess"
+              ).style.display = "block";
+              setTimeout(function () {
+                document.getElementById(
+                  "huaweiPasswordCopySuccess"
+                ).style.display = "none";
+              }, 3000);
+            }
+          });
+
+        // 为华为服务器地址复制按钮添加点击事件
+        document
+          .getElementById("huaweiServerCopyBtn")
+          .addEventListener("click", function () {
+            if (copyToClipboard(CONFIG.CALDAV_SERVER)) {
+              document.getElementById("huaweiServerCopySuccess").style.display =
+                "block";
+              setTimeout(function () {
+                document.getElementById(
+                  "huaweiServerCopySuccess"
+                ).style.display = "none";
+              }, 3000);
+            }
+          });
+
+        // 为复制按钮添加点击事件（OPPO）
+        document
+          .getElementById("oppoCopyBtn")
+          .addEventListener("click", function () {
+            if (
+              copyToClipboard(
+                `https://${CONFIG.CDN_BASE_URL}${currentClass}.ics`
+              )
+            ) {
+              document.getElementById("oppoCopySuccess").style.display =
+                "block";
+              setTimeout(function () {
+                document.getElementById("oppoCopySuccess").style.display =
+                  "none";
+              }, 3000);
+            }
+          });
+
+        // 为vivo账户复制按钮添加点击事件
+        document
+          .getElementById("vivoAccountCopyBtn")
+          .addEventListener("click", function () {
+            if (copyToClipboard(`25${currentClass}`)) {
+              document.getElementById("vivoAccountCopySuccess").style.display =
+                "inline";
+              setTimeout(function () {
+                document.getElementById(
+                  "vivoAccountCopySuccess"
+                ).style.display = "none";
+              }, 3000);
+            }
+          });
+
+        // 为vivo密码复制按钮添加点击事件
+        document
+          .getElementById("vivoPasswordCopyBtn")
+          .addEventListener("click", function () {
+            if (copyToClipboard(`25${currentClass}`)) {
+              document.getElementById("vivoPasswordCopySuccess").style.display =
+                "inline";
+              setTimeout(function () {
+                document.getElementById(
+                  "vivoPasswordCopySuccess"
+                ).style.display = "none";
+              }, 3000);
+            }
+          });
+
+        // 为vivo服务器地址复制按钮添加点击事件
+        document
+          .getElementById("vivoServerCopyBtn")
+          .addEventListener("click", function () {
+            if (copyToClipboard(CONFIG.CALDAV_SERVER)) {
+              document.getElementById("vivoServerCopySuccess").style.display =
+                "inline";
+              setTimeout(function () {
+                document.getElementById("vivoServerCopySuccess").style.display =
+                  "none";
+              }, 3000);
+            }
+          });
+      });
+    </script>
+  </body>
+</html>
